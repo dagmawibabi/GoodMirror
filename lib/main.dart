@@ -1,12 +1,19 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
+Future<void> main() async {
+  await Hive.initFlutter();
   runApp(MyApp());
 }
 
@@ -35,12 +42,11 @@ class _MyAppState extends State<MyApp> {
     Alignment.center,
     Alignment.bottomCenter,
   ];
-
   dynamic posGradient = [
     [
       Colors.transparent,
       Colors.black.withOpacity(0.4), //! was 0.4
-      Colors.black.withOpacity(0.9), //! was 0.4
+      Colors.black.withOpacity(0.5), //! was 0.4
     ],
     [
       Colors.transparent,
@@ -48,7 +54,8 @@ class _MyAppState extends State<MyApp> {
       Colors.transparent,
     ],
     [
-      Colors.black.withOpacity(0.4),
+      Colors.black.withOpacity(0.5),
+      Colors.black.withOpacity(0.4), //! was 0.4
       Colors.transparent,
     ],
   ];
@@ -58,14 +65,6 @@ class _MyAppState extends State<MyApp> {
     lensDirection: CameraLensDirection.front,
     sensorOrientation: 180,
   );
-
-  Future initCam() async {
-    textIndex = 0;
-    await camController.initialize();
-    preview = camController.buildPreview();
-    complete = true;
-    setState(() {});
-  }
 
   List amharicAffirmations = [
     "የወደፊቴን እገነባለሁ።",
@@ -184,6 +183,35 @@ class _MyAppState extends State<MyApp> {
     "ደስታ ምርጫ ነው, እና ዛሬ ደስተኛ ለመሆን እመርጣለሁ።",
     "ግቦችን በቁርጠኝነት እከተላቸዋለሁ።",
     "ችሎታዎቼ ወደሚደነቁኝ ቦታዎች ይወስደኛል።",
+    "አእምሮዬን መለወጥ ጥንካሬ እንጂ ድክመት አይደለም።",
+    "የእኔን ማንነት እውነት የያዝኩት እኔ ብቻ ነኝ።",
+    "የምፈልገውን እንድጠይቅ ተፈቅዶልኛል።",
+    "ጥሩ ስሜት እንዲሰማኝ ተፈቅዶልኛል።",
+    "በሕይወቴ ውስጥ ስራ እና እረፍትን ማመጣጠን እችላለሁ።",
+    "እኔ ሙሉ ነኝ።",
+    "እኔ እያደግኩ ነው እናም በራሴ ፍጥነት እሄዳለሁ።",
+    "ረክቻለሁ እና ከህመም ነፃ ነኝ።",
+    "ደህና ነኝ እና እየተሻልኩ ነው።",
+    "ደስተኛ ነኝ።",
+    "የተወደድኩ እና የተገባኝ ነኝ።",
+    "እኔ ከሁኔታዬ በላይ ነኝ።",
+    "ለመፈወስ ክፍት ነኝ።",
+    "ዛሬ አዲስ ቀን ስለሆነ ብሩህ ተስፋ አለኝ።",
+    "እኔ ሰላማዊ እና ሙሉ ነኝ።",
+    "ደህና ነኝ እናም በፍቅር እና ድጋፍ ተከብቤያለሁ።",
+    "አሁንም እየተማርኩ ነው ስለዚህ ስህተት መሥራት ምንም ችግር የለውም።",
+    "የእኔ አመለካከት አስፈላጊ ነው።",
+    "እኔ ዋጋ ያለው እና አጋዥ ነኝ።",
+    "ሁለት ተቃራኒ ስሜቶችን በአንድ ጊዜ መያዝ እችላለሁ፣ ይህ ማለት እያሰብኩ ነው ማለት ነው።",
+    "በሌሎች እና በራሴ ውስጥ ያሉትን መልካም ባሕርያት አከብራለሁ።",
+    "ሁሉንም ነገር በፍቅር አደርጋለሁ።",
+    "በጨለማ ቦታዎች ውስጥ መቆየት የለብኝም, እዚህ ለእኔ እርዳታ አለ።",
+    "እኔ ከማንነቴ በቀር ሌላ ማንንም አላስመስልም።",
+    "ወደ ፍላጎቶቼ አደግኩ።",
+    "ከማስበው በላይ መጥቻለሁ፣ እና በመንገዱ እየተማርኩ ነው።",
+    "ለመሳካት የሚያስፈልገኝ ነገር ሁሉ አለኝ።",
+    "ጥበብን እና ሙዚቃን ወደ ህይወቴ እጋብዛለሁ።",
+    "ከእውቀት በላይ ጥበብን እይዛለሁ።",
   ];
 
   List englishAffirmations = [
@@ -312,98 +340,97 @@ class _MyAppState extends State<MyApp> {
     "Happiness is a choice, and today I choose to be happy.",
     "I set goals and go after them with all the determination I can muster.",
     "My own skills and talents will take me to places that amaze me.",
+    "Changing my mind is a strength, not a weakness.",
+    "I affirm and encourage others, as I do myself.",
+    "I alone hold the truth of who I am.",
+    "I am allowed to ask for what I want and what I need.",
+    "I am allowed to feel good.",
+    "I am capable of balancing ease and effort in my life.",
+    "I am complete as I am, others simply support me.",
+    "I am growing and I am going at my own pace. ",
+    "I am content and free from pain.",
+    "I am good and getting better.",
+    "I am held and supported by those who love me.",
+    "I am in charge of how I feel and I choose to feel happy.",
+    "I am loved and worthy.",
+    "I am more than my circumstances dictate.",
+    "I am open to healing.",
+    "I am optimistic because today is a new day.",
+    "I am peaceful and whole.",
+    "I am safe and surrounded by love and support.",
+    "I am still learning so it's okay to make mistakes.",
+    "My perspective is important.",
+    "I am valued and helpful.",
+    "I belong here, and I deserve to take up space.",
+    "I can be soft in my heart and firm in my boundaries.",
+    "I can hold two opposing feelings at once, it means I am processing.",
+    "I celebrate the good qualities in others and myself.",
+    "I do all things in love.",
+    "I do not have to linger in dark places; there is help for me here.",
+    "I do not pretend to be anyone or anything other than who I am.",
+    "I do not rise and fall for another.",
+    "I do not rush through my life.",
+    "I grow towards my interests.",
+    "I have come farther than I would have ever thought possible, and I'm learning along the way.",
+    "I have everything I need to succeed.",
+    "I invite art and music into my life.",
+    "I hold wisdom beyond knowledge.",
+    "I invite abundance and a generous heart.",
   ];
 
-  //!
-  List medhanitTexts = [
-    "Hey Med 👋",
-    "My baby 😍",
-    "I made this little thing for you.",
-    "It's nothing more than a mirror and my words...\n🪞",
-    "But I got a lot to say to you.",
-    "See this person in this mirror?",
-    "Just look at you!",
-    "There are no filters, no editting, no nothing...",
-    "but look at your beautiful skin...",
-    "...gorgeous big eyes... \n👁👁",
-    "...lips I wish I can kiss right now...\n👄",
-    "and smile esti\n😊",
-    "God, your smile fucking lights up my day ewnet!",
-    "and ughh those beautiful pearly teeth!!! \n😁",
-    "How r they so white??! 😍",
-    "I mean c'mon u look like someone designed u in a computer!",
-    "Okay enough about your physical beauty!",
-    "See this mirror isn't like the one's you've seen before!\n It sees beyond that! ✨",
-    "So let me get to my point",
-    "I know you're not going thru the best of times lately...\n😟",
-    "and I know you're beating yourself up...\n😣",
-    "but baby I just wanna tell you that...",
-    "YOU, are the best thing I've ever had the chance of meeting!\n💙",
-    "I'm so glad that I called the wrong number to find the right person on that holiday years ago! 📞",
-    "To this day I can feel the shock I felt when you told me that you were Medhanit 🤯",
-    "Baby... ",
-    "trust in what I'm about to say...",
-    "...take a deep breath...\n😮‍💨",
-    "...don't doubt anything...\n😊",
-    "let every word sink deep into your heart! 🫀",
-    "Med...",
-    "YOU ARE GOING TO BE AN INCREDIBLE ARCHITECT! 🏰",
-    "YOU ARE ON THE RIGHT PATH! 🛣",
-    "YOU RADIATE POSITIVE ENERGY! ⚡️",
-    "YOUR MIND IS LIMITLESS! ♾",
-    "YOUR SOUL RADIATES HEAT AND WARMS OTHER PEOPLE! \n❤️",
-    "I know you believe in aura's and all that crazy people stuff...\n😅",
-    "So I'll tell you in the language uk...",
-    "You are made of magic! 🪄\n My aura is in perfect harmony with yours! 💫",
-    "Miles apart gin sint gize new we feel eachother's emotions?",
-    "or accidentally talk about something that's both in our minds?",
-    "sinte new 'Our Connection eko' eyaln yeminigorirew??",
-    "It's like I've always said, We are one person living in two bodies! 👩‍❤️‍👨",
-    "Baby ik u r trying to be perfect for me",
-    "But know that the perfect Medhanit, isn't the one that you'll be making in the future...",
-    "It's the one that's here with me right now that wants to give me the perfect version of herself. 😘",
-    "You, as you are staring in this mirror...",
-    "YOU, are my perfect girlfriend!",
-    "You are the only person \nI found home in! 🏡",
-    "Not the person you want to be, or the perfect version you want for me...",
-    "BUT THIS PERSON IN THIS MIRROR...",
-    "THIS PERSON IS THE ONE I FOUND HOME IN!",
-    "With all the imperfections you see and all the mistakes you've done...",
-    "YOU ARE THE ONLY PERSON I FOUND HOME IN!! 🏡❤️",
-    "And in my world that means ALOT BABY!!",
-    "So this person in this mirror...\n (Look in the mirror)",
-    "I love her with all my heart, body and mind! 🌈",
-    "All your perfect imperfections endale I am proud to show off to the world and be proud of! 🥳",
-    "This person you are staring at, \n(look at yourself)",
-    "I swear to God, if it comes to it I will die for you ewnet. 🖤",
-    "Cause in my mind life without you isn't a life I want to live.",
-    "So yene konjo, manm baynorlsh, manm tiru neger baylsh, friends bitachi, or lonely bisemash...",
-    "ene behiwet eskalehu dires yemiwedsh ena yeminafksh sew endale eweki",
-    "kazam alfo ken beken 'abragn bitihon' eyale yemimegn sew endale eweki",
-    "kezam alfo degmo beserashiw neger hulu yemikora ena yemideset and all your tiny or big accomplishments celebrate yemiaderg sew endalesh eweki",
-    "and ya sew ene negn baby!",
-    "Feeling loved or not 🥰",
-    "We're talking lots or not 🤣",
-    "Abreshgn honsh or not 😔",
-    "We're arguing or not 😡",
-    "Through it all kelibe new miwedsh I swear to God. Libe eskifeneda new miwedsh, yenefse fikir nesh! 💚",
-    "Just one last time stare at your self in this mirror",
-    "This mirror is beautiful, cause the mirror to the beautiful is beautiful!",
-    "So the next time you walk by your reflection remember all that I just said and smile! 😊",
-    "Cause you get to be this beautiful person in all your reflections!",
-    "Your words are my cozy fireplace, your breath is my wine. You are everything to me. 🌎",
-    "It's lelit 10 seat as i'm making this for you and silanchi eyasebku silehone chelemaw tefto lelite tsehay new ☀️",
-    "And I'm glad I get to be your mirror today, cause never have I ever reflected any soul as dreamy as yours! 💝",
-    "Have a beautiful day baby! 💐",
-    "I love you! \n🌧🌧🌧",
-    "- Here lies the reflection of the most beautiful soul - \n👇",
-    " ",
-  ];
-  int textIndex = 0;
-  //!
+  int curIndex = 0;
+
+  void loadSettings() async {
+    dynamic settingsBox = await Hive.openBox("settings");
+    darkMode = await settingsBox.get("darkMode");
+    isEnglish = await settingsBox.get("isEnglish");
+    pos = await settingsBox.get("textPosition");
+  }
+
+  void saveSettings() async {
+    dynamic settingsBox = await Hive.openBox("settings");
+    await settingsBox.put("darkMode", darkMode);
+    await settingsBox.put("isEnglish", isEnglish);
+    await settingsBox.put("textPosition", pos);
+  }
+
+  void timedChange() {
+    Timer.periodic(Duration(seconds: 20), (value) {
+      if (isEnglish == true) {
+        curIndex = Random().nextInt(englishAffirmations.length - 1);
+      } else {
+        curIndex = Random().nextInt(amharicAffirmations.length - 1);
+      }
+      setState(() {});
+    });
+  }
+
+  ConfettiController controllerCenter =
+      ConfettiController(duration: const Duration(seconds: 3));
+
+  Future initCam() async {
+    complete = false;
+    setState(() {});
+    await camController.initialize();
+    preview = camController.buildPreview();
+    Timer(
+      Duration(seconds: 2),
+      () {
+        if (isEnglish == true) {
+          curIndex = Random().nextInt(englishAffirmations.length - 1);
+        } else {
+          curIndex = Random().nextInt(amharicAffirmations.length - 1);
+        }
+        complete = true;
+        timedChange();
+        setState(() {});
+      },
+    );
+  }
 
   @override
   void initState() {
+    loadSettings();
     // TODO: implement initState
     super.initState();
     camController = CameraController(
@@ -412,6 +439,13 @@ class _MyAppState extends State<MyApp> {
       enableAudio: false,
     );
     initCam();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    camController.dispose();
   }
 
   @override
@@ -426,114 +460,198 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: darkMode == true ? Colors.black : Colors.grey[200],
-        appBar: AppBar(
-          backgroundColor: darkMode == true ? Colors.black : Colors.grey[200],
-          elevation: 0.0,
-          //   leading: TextButton(
-          //     child: Text(
-          //       isEnglish == true ? "ሀለሐ" : "ABC",
-          //       style: TextStyle(
-          //         fontSize: 14.0,
-          //         color: Colors.grey[600],
-          //       ),
-          //     ),
-          //     onPressed: () {
-          //       isEnglish = !isEnglish;
-          //       setState(() {});
-          //     },
-          //   ),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await initCam();
-              },
-              icon: Icon(
-                Icons.refresh,
-                color: Colors.grey[600],
+        appBar: complete == false
+            ? AppBar(
+                backgroundColor:
+                    darkMode == true ? Colors.black : Colors.grey[200],
+              )
+            : AppBar(
+                backgroundColor:
+                    darkMode == true ? Colors.black : Colors.grey[200],
+                elevation: 0.0,
+                leading: TextButton(
+                  child: Text(
+                    isEnglish == true ? "ሀለሐ" : "ABC",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  onPressed: () {
+                    isEnglish = !isEnglish;
+                    saveSettings();
+                    setState(() {});
+                  },
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () async {
+                      await initCam();
+                    },
+                    icon: Icon(
+                      Icons.refresh,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      // await initCam();
+                      pos++;
+                      if (pos > 3) {
+                        pos = 1;
+                      }
+                      saveSettings();
+                      setState(() {});
+                    },
+                    icon: Icon(
+                      posIcons[pos - 1],
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      darkMode = !darkMode;
+                      saveSettings();
+                      setState(() {});
+                    },
+                    icon: Icon(
+                      darkMode == true
+                          ? Icons.light_mode_outlined
+                          : Icons.dark_mode_outlined,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              onPressed: () async {
-                // await initCam();
-                pos++;
-                if (pos > 3) {
-                  pos = 1;
-                }
-                setState(() {});
-              },
-              icon: Icon(
-                posIcons[pos - 1],
-                color: Colors.grey[600],
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                darkMode = !darkMode;
-                setState(() {});
-              },
-              icon: Icon(
-                darkMode == true
-                    ? Icons.light_mode_outlined
-                    : Icons.dark_mode_outlined,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
         body: ListView(
           children: [
             complete == false
-                ? Text("")
-                : Stack(
-                    alignment: posAlignment[pos - 1],
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        child: CameraPreview(
-                          camController,
-                          child: preview,
+                      SizedBox(height: 100.0),
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          Image.asset("assets/icon.png"),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 40.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Good Mirror",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.grey[200],
+                                    fontSize: 22.0,
+                                  ),
+                                ),
+                                SizedBox(height: 10.0),
+                                Text(
+                                  "This mirror sees through you!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 15.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 150.0),
+                      Text(
+                        "Made with  🤍  by Dream Intelligence\n\n Augest 2022",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 12.0,
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          // bottom: 20.0,
-                          left: 10.0,
-                          right: 10.0,
-                        ),
-                        width: double.infinity,
-                        height: 130.0, //! was 130.0
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          // color: Colors.black.withOpacity(0.1),
-                          gradient: LinearGradient(
-                            colors: posGradient[pos - 1],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Stack(
+                        alignment: posAlignment[pos - 1],
+                        children: [
+                          Container(
+                            child: CameraPreview(
+                              camController,
+                              child: preview,
+                            ),
                           ),
-                        ),
+                          Container(
+                            padding: EdgeInsets.only(
+                              // bottom: 20.0,
+                              left: 10.0,
+                              right: 10.0,
+                            ),
+                            width: double.infinity,
+                            height: 130.0,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              // color: Colors.black.withOpacity(0.1),
+                              gradient: LinearGradient(
+                                colors: posGradient[pos - 1],
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (isEnglish == true) {
+                                  curIndex = Random()
+                                      .nextInt(englishAffirmations.length - 1);
+                                } else {
+                                  curIndex = Random()
+                                      .nextInt(amharicAffirmations.length - 1);
+                                }
+                                setState(() {});
+                              },
+                              child: Text(
+                                isEnglish == true
+                                    ? englishAffirmations[curIndex]
+                                    : amharicAffirmations[curIndex],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[200],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20.0, //! was 18.0
+                                ),
+                              ),
+                            ),
+                          ),
+                          ConfettiWidget(
+                            confettiController: controllerCenter,
+                            blastDirectionality: BlastDirectionality.explosive,
+                            shouldLoop: false,
+                            numberOfParticles: 50,
+                            gravity: 0.4,
+                            colors: const [
+                              Colors.green,
+                              Colors.blue,
+                              Colors.pink,
+                              Colors.orange,
+                              Colors.purple
+                            ],
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () {
-                            //!
-                            textIndex++;
-                            if (textIndex >= medhanitTexts.length) {
-                              textIndex = 0;
-                            }
-                            //!
-                            setState(() {});
+                            controllerCenter.play();
+                            print("here");
                           },
                           child: Text(
-                            //!
-                            medhanitTexts[textIndex],
-                            //!
-                            // isEnglish == true
-                            //     ? englishAffirmations[Random()
-                            //         .nextInt(englishAffirmations.length - 1)]
-                            //     : amharicAffirmations[Random()
-                            //         .nextInt(amharicAffirmations.length - 1)],
-                            textAlign: TextAlign.center,
+                            "You look beautiful",
                             style: TextStyle(
-                              color: Colors.grey[200],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0, //! was 18.0
+                              color: darkMode == true
+                                  ? Colors.grey[800]!
+                                  : Colors.grey[500],
                             ),
                           ),
                         ),
@@ -542,46 +660,6 @@ class _MyAppState extends State<MyApp> {
                   ),
           ],
         ),
-        //!
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              // mini: true,
-              backgroundColor:
-                  darkMode == true ? Colors.grey[900]! : Colors.grey[300]!,
-              child: Icon(
-                Icons.navigate_before_outlined,
-                color: darkMode == true ? Colors.grey[200] : Colors.black,
-              ),
-              onPressed: () {
-                textIndex--;
-                if (textIndex <= -1) {
-                  textIndex = medhanitTexts.length - 1;
-                }
-                setState(() {});
-              },
-            ),
-            SizedBox(width: 10.0),
-            FloatingActionButton(
-              // mini: true,
-              backgroundColor:
-                  darkMode == true ? Colors.grey[900]! : Colors.grey[300]!,
-              child: Icon(
-                Icons.navigate_next_outlined,
-                color: darkMode == true ? Colors.grey[200] : Colors.black,
-              ),
-              onPressed: () {
-                textIndex++;
-                if (textIndex >= medhanitTexts.length) {
-                  textIndex = 0;
-                }
-                setState(() {});
-              },
-            ),
-          ],
-        ),
-        //!
       ),
     );
   }
