@@ -613,6 +613,7 @@ class _HomePageState extends State<HomePage> {
         ? Scaffold(
             backgroundColor: Colors.black,
             appBar: AppBar(
+              elevation: 0,
               backgroundColor: Colors.black,
             ),
             body: ListView(
