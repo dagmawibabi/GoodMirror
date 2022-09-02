@@ -609,14 +609,64 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkMode == true ? Colors.black : Colors.grey[200],
-      appBar: complete == false
-          ? AppBar(
-              backgroundColor:
-                  darkMode == true ? Colors.black : Colors.grey[200],
-            )
-          : AppBar(
+    return complete == false
+        ? Scaffold(
+            backgroundColor: Colors.black,
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+            ),
+            body: ListView(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 100.0),
+                    Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Image.asset("assets/icon.png"),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 40.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Good Mirror",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[200],
+                                  fontSize: 22.0,
+                                ),
+                              ),
+                              SizedBox(height: 10.0),
+                              Text(
+                                "This mirror sees through you!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 15.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 150.0),
+                    Text(
+                      "Made with  🤍  by Dream Intelligence\n\n Augest 2022",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 12.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ))
+        : Scaffold(
+            backgroundColor: darkMode == true ? Colors.black : Colors.grey[200],
+            appBar: AppBar(
               backgroundColor:
                   darkMode == true ? Colors.black : Colors.grey[200],
               elevation: 0.0,
@@ -698,55 +748,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-      body: ListView(
-        children: [
-          complete == false
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 100.0),
-                    Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Image.asset("assets/icon.png"),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 40.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                "Good Mirror",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.grey[200],
-                                  fontSize: 22.0,
-                                ),
-                              ),
-                              SizedBox(height: 10.0),
-                              Text(
-                                "This mirror sees through you!",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 15.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 150.0),
-                    Text(
-                      "Made with  🤍  by Dream Intelligence\n\n Augest 2022",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
+            body: ListView(
+              children: [
+                Column(
                   children: [
                     Stack(
                       alignment: posAlignment[pos - 1],
@@ -828,8 +832,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-        ],
-      ),
-    );
+              ],
+            ),
+          );
   }
 }
