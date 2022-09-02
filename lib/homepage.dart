@@ -458,6 +458,16 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  Future clearCustomAffirmations() async {
+    Box customAffirmationsBox = await Hive.openBox("customAffirmationsBox");
+    dynamic customAffirmationsResult =
+        await customAffirmationsBox.get("customAffirmations");
+    customAffirmationsBox.clear();
+    customAffirmations = ["You don't have any custom affirmations"];
+    setAffirmationIndex();
+    setState(() {});
+  }
+
   TextEditingController newAffirmationController = TextEditingController();
   void addNewAffirmation() {
     showModalBottomSheet(
@@ -560,7 +570,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 onPressed: () async {
-                  await addAffirmation();
+                  await clearCustomAffirmations();
                 },
                 child: Text(
                   "Clear Affirmations",
